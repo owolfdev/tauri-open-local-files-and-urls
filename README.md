@@ -27,6 +27,8 @@ npm install @tauri-apps/api
 
 Before we dive into the Next.js code, let's create the Rust functions that will be invoked by our Next.js application. In the `src-tauri/src/main.rs` file, add the following code.
 
+**NOTE!:** See a patch for widows functionality at the end of this article.
+
 ```rust
 // main.rs
 
@@ -141,6 +143,44 @@ npm run tauri dev
 
 If everything went smoothly, your application should open a Tauri window with buttons for opening a file and a URL. When you click these buttons, the corresponding Rust functions will be triggered, demonstrating how Tauri allows front-end and back-end languages to communicate seamlessly.
 
-If the app is also running as a web app, try conditionally rendering the links. See at base-url/conditional/. code at /app/conditional/page.tsx
-
 By following this article, you've learned how to leverage Tauri's native capabilities inside a Next.js application, allowing you to open files and URLs in a cross-platform way. This serves as a powerful example of how web technologies can interact with native functionalities through Tauri.
+
+## Quick Patch for Windows
+
+If you're using Windows, you may have noticed that the `open_file` command doesn't work as expected. To fix this I am useing the code below in the main.rs file. More on this later.
+
+```rust
+#[tauri::command]
+fn open_file(file_path: String) -> Result<(), String> {
+  // ... (your other cfg attributes here for Linux and macOS)
+
+  #[cfg(target_os = "windows")]
+  {
+    let opener = "cmd";
+    let args = ["/c", "start", "", &file_path];
+    std::process::Command::new(opener)
+      .args(&args)
+      .spawn()
+      .map_err(|err| format!("Failed to open file: {}", err))?;
+  }
+
+  Ok(())
+}
+
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+  // ... (your other cfg attributes here for Linux and macOS)
+
+  #[cfg(target_os = "windows")]
+  {
+    let opener = "cmd";
+    let args = ["/c", "start", "", &url];
+    std::process::Command::new(opener)
+      .args(&args)
+      .spawn()
+      .map_err(|err| format!("Failed to open URL: {}", err))?;
+  }
+
+  Ok(())
+}
+```
