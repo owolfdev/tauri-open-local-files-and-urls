@@ -141,4 +141,6 @@ npm run tauri dev
 
 If everything went smoothly, your application should open a Tauri window with buttons for opening a file and a URL. When you click these buttons, the corresponding Rust functions will be triggered, demonstrating how Tauri allows front-end and back-end languages to communicate seamlessly.
 
+If the app is also running as a web app, try conditionally rendering the links. See at base-url/conditional/. code at /app/conditional/page.tsx
+
 By following this article, you've learned how to leverage Tauri's native capabilities inside a Next.js application, allowing you to open files and URLs in a cross-platform way. This serves as a powerful example of how web technologies can interact with native functionalities through Tauri.
